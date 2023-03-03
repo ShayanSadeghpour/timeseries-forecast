@@ -1,0 +1,41 @@
+#first lets visualize the dataset
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+data = pd.read_csv('time_series_data.csv', delimiter='\t')
+
+plt.plot(data['date'], data['gross_add'])
+plt.xlabel('Date')
+plt.ylabel('Gross Add')
+plt.show()
+
+#train, test and prediction model using SARIMA
+
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.tsa.seasonal import seasonal_decompose
+from pmdarima.arima import auto_arima
+
+# Load the data
+data = pd.read_csv('time_series_data.csv', delimiter='\t')
+
+# Set the date column as the index
+data['date'] = pd.to_datetime(data['date'])
+data.set_index('date', inplace=True)
+
+# Create a SARIMA model using auto_arima to determine the optimal parameters
+model = auto_arima(data, seasonal=True, m=12, suppress_warnings=True)
+
+# Fit the model to the data
+model.fit(data)
+
+# Make predictions for the next 6 months
+forecast = model.predict(n_periods=6)
+
+# Convert the forecast to a dataframe
+forecast = pd.DataFrame(forecast, index=pd.date_range(start='2022-04-01', periods=6, freq='MS'), columns=['gross_add'])
+
+# Print the forecast
+print(forecast)
